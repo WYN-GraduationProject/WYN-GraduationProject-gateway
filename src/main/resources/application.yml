@@ -1,0 +1,27 @@
+server:
+  port: 8500
+spring:
+  cloud:
+    loadbalancer:
+      nacos:
+        enabled: true
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/login,/api/auth/logout
+        - id: goods-service
+          uri: lb://goods-service
+          predicates:
+            - Path=/goods/**
+    nacos:
+      discovery:
+        server-addr: 1.94.63.237:8848
+user:
+  white-list: # 白名单
+    - /login
+    - /logout

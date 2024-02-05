@@ -1,0 +1,10 @@
+app:
+  id: WYNbysj
+spring:
+  cloud:
+    nacos:
+      config:
+        server-addr: 1.94.63.237:8848
+        prefix: ${app.id}
+  application:
+    name: gateway
