@@ -10,7 +10,6 @@ import java.util.List;
 @Configuration
 @ConfigurationProperties(prefix = "user")
 public class WhiteListConfig {
-
     //放行白名单
     private List<String> whiteList;
 }

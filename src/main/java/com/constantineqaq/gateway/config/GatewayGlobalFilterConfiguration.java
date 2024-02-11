@@ -1,13 +1,9 @@
 package com.constantineqaq.gateway.config;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
-import entity.RestBean;
-import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
@@ -18,10 +14,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import utils.JwtUtil;
 
-import java.net.URI;
 import java.util.List;
 
-@Component
 @Slf4j
 public class GatewayGlobalFilterConfiguration implements GlobalFilter, Ordered {
 
