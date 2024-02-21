@@ -20,4 +20,8 @@ public class Account implements BaseData {
     String email;
     String role;
     Date registerTime;
+    /** 状态 (1:正常；0:禁用) */
+    private Integer accountStatus;
+//    /** 角色集合 */
+//    private List<AuthRole> roleList;
 }

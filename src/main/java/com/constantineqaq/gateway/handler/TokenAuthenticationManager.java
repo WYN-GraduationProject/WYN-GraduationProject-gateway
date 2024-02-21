@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 
-@Component
+
 @Primary
 public class TokenAuthenticationManager implements ReactiveAuthenticationManager {
 

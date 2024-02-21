@@ -1,7 +1,9 @@
 package com.constantineqaq.gateway.handler;
 
-import com.alibaba.fastjson2.JSONObject;
+
+import com.alibaba.fastjson.JSONObject;
 import entity.RestBean;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.http.HttpStatus;
@@ -14,11 +16,13 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.Charset;
 
-@Component
+
+@Slf4j
 public class DefaultAuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
 
     @Override
     public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex) {
+        log.info("认证失败:{}", ex.getMessage());
         return Mono.defer(() -> Mono.just(exchange.getResponse())).flatMap(response -> {
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             response.getHeaders().setContentType(MediaType.APPLICATION_JSON);

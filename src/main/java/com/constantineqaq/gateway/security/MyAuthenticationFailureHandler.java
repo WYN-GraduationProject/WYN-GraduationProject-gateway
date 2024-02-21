@@ -1,9 +1,12 @@
-package com.constantineqaq.gateway.handler;
+package com.constantineqaq.gateway.security;
 
-import com.alibaba.fastjson2.JSONObject;
+
+import com.alibaba.fastjson.JSONObject;
 import entity.RestBean;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,10 +15,9 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.util.Map;
-
 @Component
-public class DefaultAuthenticationFailureHandler implements ServerAuthenticationFailureHandler {
+@Slf4j
+public class MyAuthenticationFailureHandler implements ServerAuthenticationFailureHandler {
 
     @Override
     public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception) {

@@ -1,9 +1,8 @@
-package com.constantineqaq.gateway.handler;
+package com.constantineqaq.gateway.security;
 
 
 import com.alibaba.fastjson.JSONObject;
 import entity.RestBean;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.http.HttpStatus;
@@ -16,22 +15,27 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.Charset;
 
-
-@Slf4j
-public class DefaultAccessDeniedHandler implements ServerAccessDeniedHandler {
+/**
+ * 鉴权错误处理器
+ */
+@Component
+public class MyAccessDeniedHandler implements ServerAccessDeniedHandler {
 
     @Override
     public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException denied) {
-        log.info("授权失败:{}", denied.getMessage());
-        return Mono.defer(() -> Mono.just(exchange.getResponse()))
+
+        return Mono
+                .defer(() -> Mono.just(exchange.getResponse()))
                 .flatMap(response -> {
                     response.setStatusCode(HttpStatus.OK);
                     response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
                     DataBufferFactory dataBufferFactory = response.bufferFactory();
-                    String result = JSONObject.toJSONString(RestBean.failure(HttpStatus.FORBIDDEN.value(), denied.getMessage()));
+                    String result = JSONObject.toJSONString(RestBean.failure(403,"权限不足"));
                     DataBuffer buffer = dataBufferFactory.wrap(result.getBytes(
                             Charset.defaultCharset()));
                     return response.writeWith(Mono.just(buffer));
                 });
+
     }
 }
+
