@@ -62,6 +62,8 @@ public class WebfluxSecurityConfig {
         return httpSecurity
                 .authorizeExchange(conf -> conf
                         .pathMatchers("/api/auth/**").permitAll()
+                        .pathMatchers("/goods/test1").authenticated()
+                        .anyExchange().access(myAuthorizationManager)
                 )
                 .securityContextRepository(mySecurityContextRepository)
                 .exceptionHandling(conf -> conf

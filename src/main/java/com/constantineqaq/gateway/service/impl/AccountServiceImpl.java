@@ -1,8 +1,8 @@
 package com.constantineqaq.gateway.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
 import com.constantineqaq.gateway.entity.dto.Account;
 import com.constantineqaq.gateway.entity.vo.request.ConfirmResetVO;
 import com.constantineqaq.gateway.entity.vo.request.EmailRegisterVO;
@@ -19,7 +19,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 import utils.FlowUtil;
 
 import java.util.Date;
@@ -48,6 +47,24 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     @Resource
     FlowUtil flow;
+
+    /**
+     * 从数据库中通过用户名或邮箱查找用户详细信息
+     * @param username 用户名
+     * @return 用户详细信息
+     * @throws UsernameNotFoundException 如果用户未找到则抛出此异常
+     */
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Account account = this.findAccountByNameOrEmail(username);
+        if(account == null)
+            throw new UsernameNotFoundException("用户名或密码错误");
+        return User
+                .withUsername(username)
+                .password(account.getPassword())
+                .roles(account.getRole())
+                .build();
+    }
 
     /**
      * 生成注册验证码存入Redis中，并将邮件发送请求提交到消息队列等待发送
@@ -85,7 +102,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         if(this.existsAccountByUsername(username)) return "该用户名已被他人使用，请重新更换";
         String password = passwordEncoder.encode(info.getPassword());
         Account account = new Account(null, info.getUsername(),
-                password, email, Const.ROLE_DEFAULT, new Date(),1);
+                password, email, Const.ROLE_DEFAULT, new Date());
         if(!this.save(account)) {
             return "内部错误，注册失败";
         } else {
@@ -183,23 +200,5 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
      */
     private boolean existsAccountByUsername(String username){
         return this.baseMapper.exists(Wrappers.<Account>query().eq("username", username));
-    }
-
-    /**
-     * 从数据库中通过用户名或邮箱查找用户详细信息
-     * @param username 用户名
-     * @return 用户详细信息
-     * @throws UsernameNotFoundException 如果用户未找到则抛出此异常
-     */
-    @Override
-    public Mono<UserDetails> findByUsername(String username) {
-        Account account = this.findAccountByNameOrEmail(username);
-        if(account == null)
-            return Mono.error(new UsernameNotFoundException("用户名或密码错误"));
-        return Mono.just(User
-                .withUsername(username)
-                .password(account.getPassword())
-                .roles(account.getRole())
-                .build());
     }
 }

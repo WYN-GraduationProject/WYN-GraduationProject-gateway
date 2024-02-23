@@ -23,10 +23,6 @@ public class MyAuthenticationConverter extends ServerFormLoginAuthenticationConv
 
     @Override
     public Mono<Authentication> convert(ServerWebExchange exchange) {
-
-        HttpMethod method = exchange.getRequest().getMethod();
-        MediaType contentType = exchange.getRequest().getHeaders().getContentType();
-
         return exchange
                 .getRequest()
                 .getBody()
@@ -39,7 +35,9 @@ public class MyAuthenticationConverter extends ServerFormLoginAuthenticationConv
                     } catch (IOException e) {
                         log.error(Arrays.toString(e.getStackTrace()));
                     }
-                    log.info(loginData.toString());
+                    if (loginData != null) {
+                        log.error(loginData.toString());
+                    }
 
                     // 封装 security 的自定义令牌
                     String username = loginData.getUsername();

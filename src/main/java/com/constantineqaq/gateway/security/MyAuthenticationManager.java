@@ -1,6 +1,7 @@
 package com.constantineqaq.gateway.security;
 
 import com.constantineqaq.gateway.entity.constant.LoginType;
+import com.constantineqaq.gateway.entity.dto.Account;
 import com.constantineqaq.gateway.entity.dto.LoginData;
 import com.constantineqaq.gateway.service.AccountService;
 import io.micrometer.common.util.StringUtils;
@@ -13,6 +14,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -37,28 +39,33 @@ public class MyAuthenticationManager implements ReactiveAuthenticationManager {
 
         // 转换为自定义security令牌
         MyAuthenticationToken myAuthenticationToken = (MyAuthenticationToken) authentication;
-        log.info("{}", myAuthenticationToken);
+        log.error("{}", myAuthenticationToken);
 
         // 获取登录参数
         LoginData loginData = myAuthenticationToken.getLoginData();
         if (loginData == null) {
+            log.error("未获取到登陆参数");
             throw new AuthenticationServiceException("未获取到登陆参数");
         }
         String loginType = loginData.getLoginType();
         if (StringUtils.isBlank(loginType)) {
+            log.error("登陆方式不可为空");
             throw new AuthenticationServiceException("登陆方式不可为空");
         }
+        UserDetails userDetails = null;
 
         // 获取用户实体。此处为登录方式的逻辑实现。
-        UserDetails userDetails = null;
         if (LoginType.USERNAME_CODE.equals(loginType)) {
+            userDetails = accountService.loadUserByUsername(loginData.getUsername());
 
-//            this.checkVerifyCode(loginData.getUsername(), loginData.getCommonLoginVerifyCode());
-            userDetails = (UserDetails) accountService.findAccountByNameOrEmail(loginData.getUsername());
-            if (!passwordEncoder.matches(loginData.getPassword(), userDetails.getPassword())) {
-                return Mono.error(new BadCredentialsException("用户不存在或者密码错误"));
+            if (userDetails == null) {
+                log.error("用户不存在");
+                return Mono.error(new UsernameNotFoundException("用户不存在"));
             }
-
+            if (!passwordEncoder.matches(loginData.getPassword(), userDetails.getPassword())) {
+                log.error("密码错误");
+                return Mono.error(new BadCredentialsException("密码错误"));
+            }
         } else if (LoginType.PHONE_CODE.equals(loginType)) {
 
 //            this.checkPhoneVerifyCode(loginData.getPhone(), loginData.getPhoneVerifyCode());

@@ -29,7 +29,7 @@ public class UserJwtUtil {
      * @param user 用户信息
      * @return 令牌
      */
-    public String createJwt(UserDetails user, String username, int userId) {
+    public String createJwt(UserDetails user, String username, Integer userId) {
         if(jwtUtil.frequencyCheck(userId)) {
             Algorithm algorithm = Algorithm.HMAC256(jwtUtil.getKey());
             Date expire = jwtUtil.expireTime();

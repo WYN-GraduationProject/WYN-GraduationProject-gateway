@@ -37,13 +37,13 @@ public class MyAuthorizationManager implements ReactiveAuthorizationManager<Auth
     @Override
     public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, AuthorizationContext authorizationContext) {
 
-        log.info("{}", authentication.toString());
         ServerWebExchange exchange = authorizationContext.getExchange();
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
-        log.info(path);
+        log.info("进入权限验证，当前路径：{}", path);
 
         // 从redis中获取当前路径可访问的角色列表
+        redisUtil.hset(AuthConstant.ROLES_REDIS_KEY, path, "admin");
         Object obj = redisUtil.hget(AuthConstant.ROLES_REDIS_KEY, path);
         List<String> needAuthorityList = JSONArray.parseArray(JSONObject.toJSONString(obj), String.class);
         needAuthorityList = needAuthorityList.stream().map(role -> role = AuthConstant.ROLE_PRE + role).toList();

@@ -2,7 +2,10 @@ package com.constantineqaq.gateway.security;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import entity.RestBean;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.http.HttpStatus;
@@ -19,18 +22,23 @@ import java.nio.charset.Charset;
  * 未认证处理处理器
  */
 @Component
+@Slf4j
 public class MyAuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
 
     @Override
     public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex) {
+        log.info("未认证");
         return Mono.defer(() -> Mono.just(exchange.getResponse()))
                 .flatMap(response -> {
                     response.setStatusCode(HttpStatus.UNAUTHORIZED);
                     response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-                    DataBufferFactory dataBufferFactory = response.bufferFactory();
-                    String result = JSONObject.toJSONString(RestBean.failure(401,"未认证"));
-                    DataBuffer buffer = dataBufferFactory.wrap(result.getBytes(
-                            Charset.defaultCharset()));
+                    byte[] bytes;
+                    try {
+                        bytes = new ObjectMapper().writeValueAsBytes(RestBean.failure(401,"未认证"));
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+                    DataBuffer buffer = response.bufferFactory().wrap(bytes);
                     return response.writeWith(Mono.just(buffer));
                 });
     }
