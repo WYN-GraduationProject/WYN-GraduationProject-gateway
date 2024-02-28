@@ -1,14 +1,13 @@
 package com.constantineqaq.gateway.security;
 
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.constantineqaq.gateway.entity.constant.AuthConstant;
 import entity.RestBean;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -21,8 +20,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import utils.RedisUtil;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 授权逻辑处理中心
@@ -42,17 +41,23 @@ public class MyAuthorizationManager implements ReactiveAuthorizationManager<Auth
         String path = request.getURI().getPath();
         log.info("进入权限验证，当前路径：{}", path);
 
+        // 假设这是你的角色列表
+        List<String> roles = Arrays.asList("ROLE_admin", "ROLE_user", "ROLE_guest");
+        // 将角色列表转换为JSON数组格式的字符串
+        String rolesJson = JSON.toJSONString(roles);
+        // 存储到Redis
+        redisUtil.hset(AuthConstant.ROLES_REDIS_KEY, path, rolesJson);
         // 从redis中获取当前路径可访问的角色列表
-        redisUtil.hset(AuthConstant.ROLES_REDIS_KEY, path, "admin");
         Object obj = redisUtil.hget(AuthConstant.ROLES_REDIS_KEY, path);
-        List<String> needAuthorityList = JSONArray.parseArray(JSONObject.toJSONString(obj), String.class);
-        needAuthorityList = needAuthorityList.stream().map(role -> role = AuthConstant.ROLE_PRE + role).toList();
+        List<String> needAuthorityList = JSONArray.parseArray(obj.toString(), String.class);
+//        needAuthorityList = needAuthorityList.stream().map(role -> AuthConstant.ROLE_PRE + role).toList();
+        log.info("当前路径需要的角色列表：{}", needAuthorityList);
 
         //认证通过且角色匹配的用户可访问当前路径
         return authentication
                 .filter(Authentication::isAuthenticated)
                 .flatMapIterable(auth -> {
-                    log.info(auth.getAuthorities().toString());
+                    log.info("当前用户的角色列表：{}", auth.getAuthorities());
                     return auth.getAuthorities();
                 } )
                 .map(GrantedAuthority::getAuthority)

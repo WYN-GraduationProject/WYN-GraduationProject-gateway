@@ -32,6 +32,7 @@ public class MyAuthenticationConverter extends ServerFormLoginAuthenticationConv
                     LoginData loginData = null;
                     try {
                         loginData = JSONObject.parseObject(buffer.asInputStream(),LoginData.class, Feature.OrderedField);
+                        log.info("请求参数： {}", loginData);
                     } catch (IOException e) {
                         log.error(Arrays.toString(e.getStackTrace()));
                     }

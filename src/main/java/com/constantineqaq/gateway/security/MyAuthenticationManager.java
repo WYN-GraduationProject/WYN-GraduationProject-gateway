@@ -1,7 +1,6 @@
 package com.constantineqaq.gateway.security;
 
 import com.constantineqaq.gateway.entity.constant.LoginType;
-import com.constantineqaq.gateway.entity.dto.Account;
 import com.constantineqaq.gateway.entity.dto.LoginData;
 import com.constantineqaq.gateway.service.AccountService;
 import io.micrometer.common.util.StringUtils;

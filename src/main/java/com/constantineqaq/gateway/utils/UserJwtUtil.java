@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.constantineqaq.gateway.entity.constant.AuthRole;
 import jakarta.annotation.Resource;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 import utils.JwtUtil;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -62,9 +64,13 @@ public class UserJwtUtil {
                 .build();
     }
 
-    public String toUsername(DecodedJWT jwt) {
-        Map<String, Claim> claims = jwt.getClaims();
-        return claims.get("name").asString();
+    /**
+     * 将jwt对象中的过期时间提取出来
+     * @param jwt 已解析的Jwt对象
+     * @return 过期时间
+     */
+    public Long toExpire(DecodedJWT jwt) {
+        return jwt.getExpiresAt().getTime();
     }
 
     /**

@@ -1,11 +1,13 @@
 package com.constantineqaq.gateway.security;
 
+import com.constantineqaq.gateway.entity.constant.AuthRole;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
@@ -18,24 +20,19 @@ public class MyUserDetails implements UserDetails {
      * 状态 (1:正常；0:禁用)
      */
     private Integer accountStatus;
-//    /**
-//     * 角色集合
-//     */
-//    private List<AuthRole> roleList;
-//
-//    /**
-//     * 修改为 Security 可识别 的GrantedAuthority
-//     */
-//    @Override
-//    public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return roleList.stream()
-//                .map(authRole -> new SimpleGrantedAuthority(authRole.getName()))
-//                .collect(Collectors.toList());
-//    }
+    /**
+     * 角色集合
+     */
+    private List<AuthRole> roleList;
 
+    /**
+     * 修改为 Security 可识别 的GrantedAuthority
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return roleList.stream()
+                .map(authRole -> new SimpleGrantedAuthority(authRole.getName()))
+                .collect(Collectors.toList());
     }
 
     @Override

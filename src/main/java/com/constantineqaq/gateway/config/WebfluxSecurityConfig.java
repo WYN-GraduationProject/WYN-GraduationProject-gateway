@@ -13,6 +13,7 @@ import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
 import java.util.Arrays;
@@ -72,6 +73,7 @@ public class WebfluxSecurityConfig {
                 )
                 .addFilterAt(authenticationWebFilter(),SecurityWebFiltersOrder.AUTHENTICATION)
                 .logout(conf -> conf
+                        .logoutUrl("/api/auth/logout")
                         .logoutSuccessHandler(myLogoutSuccessHandler))
                 .csrf().disable()
                 .httpBasic().disable()

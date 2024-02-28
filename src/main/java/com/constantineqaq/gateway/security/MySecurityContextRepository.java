@@ -2,6 +2,7 @@ package com.constantineqaq.gateway.security;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.constantineqaq.gateway.entity.constant.AuthConstant;
+import com.constantineqaq.gateway.entity.constant.AuthRole;
 import com.constantineqaq.gateway.entity.dto.Account;
 import com.constantineqaq.gateway.service.AccountService;
 import com.constantineqaq.gateway.utils.UserJwtUtil;
@@ -27,6 +28,7 @@ import utils.JwtUtil;
 import utils.RedisUtil;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -72,12 +74,12 @@ public class MySecurityContextRepository implements ServerSecurityContextReposit
             return Mono.empty();
         }
         UserDetails user = utils.toUser(jwt);
+        log.info("解析出的用户信息：{}", user);
         Integer userId = utils.toId(jwt);
         // 构建用户令牌
         MyUserDetails myUserDetails = new MyUserDetails();
         myUserDetails.setId(Long.valueOf(userId));
         myUserDetails.setUsername(user.getUsername());
-        // myUserDetails.setRoleList(list);
 
 //        Claims claims = JwtUtil.getClaims(token);
 //        String username = claims.getSubject();
@@ -94,7 +96,7 @@ public class MySecurityContextRepository implements ServerSecurityContextReposit
         }
 
         // 构建 Security 的认证凭据
-        MyAuthenticationToken authToken = new MyAuthenticationToken(myUserDetails, null, myUserDetails.getAuthorities());
+        MyAuthenticationToken authToken = new MyAuthenticationToken(myUserDetails, null, user.getAuthorities());
         log.info("从 token 中解析出的用户信息：{}", myUserDetails);
 
         // 从请求头中删除token，并添加解析出来的信息
