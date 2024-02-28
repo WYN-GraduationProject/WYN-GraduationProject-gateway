@@ -67,7 +67,6 @@ public class MySecurityContextRepository implements ServerSecurityContextReposit
             return Mono.empty();
         }
 
-
         // 解析 token
         DecodedJWT jwt = jwtUtil.resolveJwt(authorization);
         if (jwt == null) {
@@ -76,6 +75,10 @@ public class MySecurityContextRepository implements ServerSecurityContextReposit
         UserDetails user = utils.toUser(jwt);
         log.info("解析出的用户信息：{}", user);
         Integer userId = utils.toId(jwt);
+        Account account = accountService.findAccountByNameOrEmail(user.getUsername());
+        if (redisUtil.hget(AuthConstant.TOKEN_REDIS_KEY, account.getId().toString()) == null) {
+            return Mono.empty();
+        }
         // 构建用户令牌
         MyUserDetails myUserDetails = new MyUserDetails();
         myUserDetails.setId(Long.valueOf(userId));

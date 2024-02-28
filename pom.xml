@@ -98,7 +98,6 @@
             <groupId>com.constantineqaq</groupId>
             <artifactId>common</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba.fastjson2</groupId>

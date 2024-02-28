@@ -1,9 +1,9 @@
 package com.constantineqaq.gateway.entity.constant;
 
 public class AuthConstant {
-    public static final String TOKEN_REDIS_KEY = "token:redis";
+    public static final String TOKEN_REDIS_KEY = "token";
 
-    public static final String ROLES_REDIS_KEY = "roles:redis";
+    public static final String ROLES_REDIS_KEY = "roles";
 
     public static final String ROLE_PRE = "ROLE_";
 

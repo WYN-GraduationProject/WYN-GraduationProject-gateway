@@ -1,9 +1,11 @@
 package com.constantineqaq.gateway.security;
 
-import com.alibaba.fastjson.JSONObject;
 import com.constantineqaq.gateway.entity.constant.AuthConstant;
 import com.constantineqaq.gateway.entity.dto.Account;
 import com.constantineqaq.gateway.service.AccountService;
+import com.constantineqaq.gateway.utils.UserJwtUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import entity.RestBean;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +20,14 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import utils.RedisUtil;
 
+import java.util.Objects;
+
 @Component
 @Slf4j
 public class MyLogoutSuccessHandler implements ServerLogoutSuccessHandler {
 
+    @Resource
+    private UserJwtUtil userJwtUtil;
     @Resource
     private RedisUtil redisUtil;
 
@@ -30,22 +36,32 @@ public class MyLogoutSuccessHandler implements ServerLogoutSuccessHandler {
 
     @Override
     public Mono<Void> onLogoutSuccess(WebFilterExchange exchange, Authentication authentication) {
+        RestBean<String> result;
         ServerHttpResponse response = exchange.getExchange().getResponse();
-        // 定义返回值
-        DataBuffer dataBuffer = response.bufferFactory().wrap(JSONObject.toJSONString(RestBean.success()).getBytes());
         response.getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        if (Objects.equals(authentication.getPrincipal().toString(), "anonymous")) {
+            result = RestBean.failure(401,"未认证");
+        } else {
+            // 转换为自定义security令牌
+            MyAuthenticationToken myAuthenticationToken = (MyAuthenticationToken) authentication;
+            MyUserDetails userDetails = (MyUserDetails) myAuthenticationToken.getPrincipal();
 
-        // 转换为自定义security令牌
-        MyAuthenticationToken myAuthenticationToken = (MyAuthenticationToken) authentication;
-        MyUserDetails userDetails = (MyUserDetails) myAuthenticationToken.getPrincipal();
+            // 找到真实用户
+            Account account = accountService.findAccountByNameOrEmail(userDetails.getUsername());
+            // 删除 token
+            redisUtil.hdel(AuthConstant.TOKEN_REDIS_KEY, account.getId().toString());
 
-        // 找到真实用户
-        Account account = accountService.findAccountByNameOrEmail(userDetails.getUsername());
-        // 删除 token
-        redisUtil.hdel(AuthConstant.TOKEN_REDIS_KEY, account.getId());
 //        redisTemplate.opsForHash().delete(AuthConstant.TOKEN_REDIS_KEY, userDetails.getId());
-        log.info("登出成功：{}", myAuthenticationToken.toString());
-
-        return response.writeWith(Mono.just(dataBuffer));
+            log.info("登出成功：{}", myAuthenticationToken.toString());
+            result = RestBean.success("登出成功");
+        }
+        byte[] bytes;
+        try {
+            bytes = new ObjectMapper().writeValueAsBytes(result);
+        } catch (JsonProcessingException e) {
+            return Mono.error(e);
+        }
+        DataBuffer buffer = response.bufferFactory().wrap(bytes);
+        return response.writeWith(Mono.just(buffer));
     }
 }

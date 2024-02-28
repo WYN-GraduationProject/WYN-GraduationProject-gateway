@@ -65,15 +65,6 @@ public class UserJwtUtil {
     }
 
     /**
-     * 将jwt对象中的过期时间提取出来
-     * @param jwt 已解析的Jwt对象
-     * @return 过期时间
-     */
-    public Long toExpire(DecodedJWT jwt) {
-        return jwt.getExpiresAt().getTime();
-    }
-
-    /**
      * 将jwt对象中的用户ID提取出来
      * @param jwt 已解析的Jwt对象
      * @return 用户ID

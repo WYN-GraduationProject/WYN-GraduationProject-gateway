@@ -13,6 +13,7 @@ import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
@@ -63,7 +64,6 @@ public class WebfluxSecurityConfig {
         return httpSecurity
                 .authorizeExchange(conf -> conf
                         .pathMatchers("/api/auth/**").permitAll()
-                        .pathMatchers("/goods/test1").authenticated()
                         .anyExchange().access(myAuthorizationManager)
                 )
                 .securityContextRepository(mySecurityContextRepository)

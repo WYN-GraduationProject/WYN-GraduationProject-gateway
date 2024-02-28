@@ -18,7 +18,6 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-import utils.JwtUtil;
 import utils.RedisUtil;
 
 @Component
