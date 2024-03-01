@@ -3,11 +3,13 @@ package com.constantineqaq.gateway.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import com.constantineqaq.gateway.entity.constant.AuthRole;
 import com.constantineqaq.gateway.entity.dto.Account;
 import com.constantineqaq.gateway.entity.vo.request.ConfirmResetVO;
 import com.constantineqaq.gateway.entity.vo.request.EmailRegisterVO;
 import com.constantineqaq.gateway.entity.vo.request.EmailResetVO;
 import com.constantineqaq.gateway.mapper.AccountMapper;
+import com.constantineqaq.gateway.security.MyUserDetails;
 import com.constantineqaq.gateway.service.AccountService;
 import constant.Const;
 import jakarta.annotation.Resource;
@@ -21,9 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import utils.FlowUtil;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -59,10 +59,12 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         Account account = this.findAccountByNameOrEmail(username);
         if(account == null)
             throw new UsernameNotFoundException("用户名或密码错误");
-        return User
+        return MyUserDetails
                 .withUsername(username)
                 .password(account.getPassword())
-                .roles(account.getRole())
+                .roleList(account.toRoleList())
+                .id(Long.valueOf(account.getId()))
+                .email(account.getEmail())
                 .build();
     }
 

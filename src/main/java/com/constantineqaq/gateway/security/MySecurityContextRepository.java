@@ -63,7 +63,7 @@ public class MySecurityContextRepository implements ServerSecurityContextReposit
         HttpHeaders httpHeaders = exchange.getRequest().getHeaders();
         String authorization = httpHeaders.getFirst(HttpHeaders.AUTHORIZATION);
         if (StringUtils.isBlank(authorization)) {
-            log.error("请求头中没有找到 token");
+            log.info("请求头中没有找到 token");
             return Mono.empty();
         }
 

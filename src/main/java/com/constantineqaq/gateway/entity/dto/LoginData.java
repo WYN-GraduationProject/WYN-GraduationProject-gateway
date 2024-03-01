@@ -14,6 +14,8 @@ public class LoginData {
     private String commonLoginVerifyCode;
     /** 手机号 */
     private String phone;
+    /** 邮箱 */
+    private String email;
     /** 手机验证码 */
     private String phoneVerifyCode;
     /** 第三方平台类型 */

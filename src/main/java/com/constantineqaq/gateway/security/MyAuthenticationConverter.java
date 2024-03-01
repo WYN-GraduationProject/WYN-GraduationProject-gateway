@@ -36,18 +36,33 @@ public class MyAuthenticationConverter extends ServerFormLoginAuthenticationConv
                     } catch (IOException e) {
                         log.error(Arrays.toString(e.getStackTrace()));
                     }
-                    if (loginData != null) {
-                        log.error(loginData.toString());
+                    // 封装 security 的自定义令牌
+                    String principal = null;
+                    String password = loginData.getPassword();
+
+                    // 尝试以用户名、电子邮件或手机号作为登录标识
+                    String username = loginData.getUsername();
+                    String email = loginData.getEmail();
+                    String phone = loginData.getPhone();
+
+                    // 清理输入
+                    username = username != null ? username.trim() : "";
+                    email = email != null ? email.trim() : "";
+                    phone = phone != null ? phone.trim() : "";
+                    password = password != null ? password : "";
+
+                    // 确定主体标识
+                    if (!username.isEmpty()) {
+                        principal = username;
+                    } else if (!email.isEmpty()) {
+                        principal = email;
+                    } else if (!phone.isEmpty()) {
+                        principal = phone;
                     }
 
-                    // 封装 security 的自定义令牌
-                    String username = loginData.getUsername();
-                    String password = loginData.getPassword();
-                    username = username == null ? "" : username;
-                    username = username.trim();
-                    password = password == null ? "" : password;
+                    // 使用确定的主体标识创建认证令牌
+                    MyAuthenticationToken myAuthToken = new MyAuthenticationToken(principal, password);
 
-                    MyAuthenticationToken myAuthToken = new MyAuthenticationToken(username, password);
                     myAuthToken.setLoginData(loginData);
                     return Mono.just(myAuthToken);
                 });

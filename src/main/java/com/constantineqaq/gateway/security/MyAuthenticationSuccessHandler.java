@@ -38,18 +38,17 @@ public class MyAuthenticationSuccessHandler implements ServerAuthenticationSucce
                 .flatMap(response -> {
                     response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
                     // 生成JWT token
-                    User user = (User) authentication.getPrincipal();
-                    Account account = accountService.findAccountByNameOrEmail(user.getUsername());
-                    String token = userJwtUtil.createJwt(user,account.getUsername(),account.getId());
+                    MyUserDetails myUserDetails = (MyUserDetails) authentication.getPrincipal();
+                    String token = userJwtUtil.createJwt(myUserDetails,myUserDetails.getUsername(),myUserDetails.getId());
 
                     // 组装返回参数
-                    AuthorizeVO result = account.asViewObject(AuthorizeVO.class, o -> o.setToken(token));
+                    AuthorizeVO result = myUserDetails.asViewObject(AuthorizeVO.class, o -> o.setToken(token));
                     log.info("{}",result);
                     // 存到redis
                     // TODO 增加缓存过期时间
-                    redisUtil.hset(AuthConstant.TOKEN_REDIS_KEY,account.getId().toString(),token);
+                    redisUtil.hset(AuthConstant.TOKEN_REDIS_KEY,myUserDetails.getId().toString(),token);
                     // 返回数据
-                    log.info("用户{}登录成功",account.getUsername());
+                    log.info("用户{}登录成功",myUserDetails.getUsername());
                     byte[] bytes;
                     try {
                         bytes = new ObjectMapper().writeValueAsBytes(result);

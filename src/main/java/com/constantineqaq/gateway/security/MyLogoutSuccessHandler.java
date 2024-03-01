@@ -44,12 +44,9 @@ public class MyLogoutSuccessHandler implements ServerLogoutSuccessHandler {
         } else {
             // 转换为自定义security令牌
             MyAuthenticationToken myAuthenticationToken = (MyAuthenticationToken) authentication;
-            MyUserDetails userDetails = (MyUserDetails) myAuthenticationToken.getPrincipal();
-
-            // 找到真实用户
-            Account account = accountService.findAccountByNameOrEmail(userDetails.getUsername());
+            MyUserDetails myUserDetails = (MyUserDetails) myAuthenticationToken.getPrincipal();
             // 删除 token
-            redisUtil.hdel(AuthConstant.TOKEN_REDIS_KEY, account.getId().toString());
+            redisUtil.hdel(AuthConstant.TOKEN_REDIS_KEY, myUserDetails.getUsername());
 
 //        redisTemplate.opsForHash().delete(AuthConstant.TOKEN_REDIS_KEY, userDetails.getId());
             log.info("登出成功：{}", myAuthenticationToken.toString());

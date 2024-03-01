@@ -38,10 +38,10 @@ spring:
         locator:
           enabled: true
       routes:
-        - id: goods-service
-          uri: lb://goods-service
+        - id : auth-service
+          uri: lb://auth-service
           predicates:
-            - Path=/goods/**
+            - Path=/api/user/**
     nacos:
       discovery:
         server-addr: 1.94.63.237:8848
