@@ -27,16 +27,16 @@ public class MyAuthenticationEntryPoint implements ServerAuthenticationEntryPoin
 
     @Override
     public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex) {
-        log.info("未认证");
+        log.error("未认证", ex);
         return Mono.defer(() -> Mono.just(exchange.getResponse()))
                 .flatMap(response -> {
                     response.setStatusCode(HttpStatus.UNAUTHORIZED);
                     response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
                     byte[] bytes;
                     try {
-                        bytes = new ObjectMapper().writeValueAsBytes(RestBean.failure(401,"未认证"));
+                        bytes = new ObjectMapper().writeValueAsBytes(RestBean.failure(401, "未认证"));
                     } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
+                        return Mono.error(new RuntimeException(e));
                     }
                     DataBuffer buffer = response.bufferFactory().wrap(bytes);
                     return response.writeWith(Mono.just(buffer));

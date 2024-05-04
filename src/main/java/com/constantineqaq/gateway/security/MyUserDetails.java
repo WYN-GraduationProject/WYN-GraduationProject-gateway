@@ -147,11 +147,10 @@ public class MyUserDetails implements UserDetails, BaseData {
         }
 
         public MyUserDetails build() {
-            String encodedPassword = (String)this.passwordEncoder.apply(this.password);
+            String encodedPassword = (String) this.passwordEncoder.apply(this.password);
             return new MyUserDetails(this.id, this.email, this.phone, this.username, encodedPassword, this.accountStatus, this.roleList);
         }
     }
-
 
 
 }

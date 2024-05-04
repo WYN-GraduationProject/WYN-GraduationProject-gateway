@@ -13,13 +13,12 @@ import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
-import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
 
 
 @EnableWebFluxSecurity
@@ -64,6 +63,8 @@ public class WebfluxSecurityConfig {
         return httpSecurity
                 .authorizeExchange(conf -> conf
                         .pathMatchers("/api/user/**").permitAll()
+                        .pathMatchers("/api/video-pre/**").permitAll()
+                        .pathMatchers(HttpMethod.OPTIONS, "/api/auth/login").permitAll()  // 允许OPTIONS请求到特定端点
                         .anyExchange().access(myAuthorizationManager)
                 )
                 .securityContextRepository(mySecurityContextRepository)
@@ -71,24 +72,28 @@ public class WebfluxSecurityConfig {
                         .accessDeniedHandler(myAccessDeniedHandler)
                         .authenticationEntryPoint(myAuthenticationEntryPoint)
                 )
-                .addFilterAt(authenticationWebFilter(),SecurityWebFiltersOrder.AUTHENTICATION)
+                .addFilterAt(authenticationWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
                 .logout(conf -> conf
                         .logoutUrl("/api/auth/logout")
                         .logoutSuccessHandler(myLogoutSuccessHandler))
                 .csrf().disable()
+                .cors().and()
                 .httpBasic().disable()
                 .formLogin().disable()
-//                .authorizeExchange(exchange -> {
-//                    List<String> urlList = whiteListConfig.getWhiteList();
-//                    String[] pattern = urlList.toArray(new String[0]);
-//                    log.error("securityWebFilterChain ignoreUrls:" + Arrays.toString(pattern));
-//                    // 过滤不需要拦截的url
-//                    exchange.pathMatchers("/login").permitAll()
-//                            // 拦截认证
-//                            .pathMatchers(HttpMethod.OPTIONS).permitAll()
-//                            .anyExchange().access(myAuthorizationManager);
-//                })
                 .build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOrigin("http://localhost:5173");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 
     private AuthenticationWebFilter authenticationWebFilter() {
@@ -100,7 +105,6 @@ public class WebfluxSecurityConfig {
         filter.setRequiresAuthenticationMatcher(
                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/api/auth/login")
         );
-
         return filter;
     }
 

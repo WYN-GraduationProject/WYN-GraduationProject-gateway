@@ -1,14 +1,11 @@
 package com.constantineqaq.gateway.security;
 
 
-import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import entity.RestBean;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
@@ -53,6 +50,9 @@ public class MyAuthenticationFailureHandler implements ServerAuthenticationFailu
             } else if (exception instanceof DisabledException) {
                 log.info("账号已被禁用");
                 resultVO = RestBean.failure(401, "账号已被禁用");
+            }else if (exception instanceof AuthenticationServiceException) {
+                log.info("登录方式为空");
+                resultVO = RestBean.failure(402, exception.getMessage());
             }
             try {
                 byte[] bytes = new ObjectMapper().writeValueAsBytes(resultVO);

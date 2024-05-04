@@ -33,12 +33,13 @@ public class MyAuthenticationManager implements ReactiveAuthenticationManager {
 
         // 已经通过验证，直接返回
         if (authentication.isAuthenticated()) {
+            log.info("{}请求已通过验证", authentication.getPrincipal());
             return Mono.just(authentication);
         }
 
         // 转换为自定义security令牌
         MyAuthenticationToken myAuthenticationToken = (MyAuthenticationToken) authentication;
-        log.info("自定义请求体：{}",myAuthenticationToken);
+        log.info("自定义请求体：{}", myAuthenticationToken);
 
         // 获取登录参数
         LoginData loginData = myAuthenticationToken.getLoginData();
@@ -55,8 +56,10 @@ public class MyAuthenticationManager implements ReactiveAuthenticationManager {
 
         // 获取用户实体。此处为登录方式的逻辑实现。
         switch (loginType) {
-            case LoginType.USERNAME_CODE -> myUserDetails = (MyUserDetails) accountService.loadUserByUsername(loginData.getUsername());
-            case LoginType.EMAIL_CODE -> myUserDetails = (MyUserDetails) accountService.loadUserByUsername(loginData.getEmail());
+            case LoginType.USERNAME_CODE ->
+                    myUserDetails = (MyUserDetails) accountService.loadUserByUsername(loginData.getUsername());
+            case LoginType.EMAIL_CODE ->
+                    myUserDetails = (MyUserDetails) accountService.loadUserByUsername(loginData.getEmail());
             case LoginType.PHONE_CODE -> {
             }
 

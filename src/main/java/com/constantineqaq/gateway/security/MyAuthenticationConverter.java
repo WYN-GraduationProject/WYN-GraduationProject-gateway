@@ -4,9 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.constantineqaq.gateway.entity.dto.LoginData;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.authentication.ServerFormLoginAuthenticationConverter;
 import org.springframework.stereotype.Component;
@@ -14,7 +11,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 
 @Slf4j
@@ -31,7 +27,7 @@ public class MyAuthenticationConverter extends ServerFormLoginAuthenticationConv
                     // 读取请求体
                     LoginData loginData = null;
                     try {
-                        loginData = JSONObject.parseObject(buffer.asInputStream(),LoginData.class, Feature.OrderedField);
+                        loginData = JSONObject.parseObject(buffer.asInputStream(), LoginData.class, Feature.OrderedField);
                         log.info("请求参数： {}", loginData);
                     } catch (IOException e) {
                         log.error(Arrays.toString(e.getStackTrace()));

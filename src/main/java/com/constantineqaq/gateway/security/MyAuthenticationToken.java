@@ -17,7 +17,7 @@ public class MyAuthenticationToken extends AbstractAuthenticationToken {
 
     @Getter
     @Setter
-    private LoginData  loginData;
+    private LoginData loginData;
 
     public MyAuthenticationToken(Object principal, Object credentials) {
         super(null);

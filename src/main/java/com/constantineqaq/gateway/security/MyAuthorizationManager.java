@@ -41,14 +41,19 @@ public class MyAuthorizationManager implements ReactiveAuthorizationManager<Auth
         String path = request.getURI().getPath();
         log.info("进入权限验证，当前路径：{}", path);
 
-//        // 假设这是你的角色列表
-//        List<String> roles = Arrays.asList("ROLE_admin", "ROLE_user", "ROLE_guest");
-//        // 将角色列表转换为JSON数组格式的字符串
-//        String rolesJson = JSON.toJSONString(roles);
-//        // 存储到Redis
-//        redisUtil.hset(AuthConstant.ROLES_REDIS_KEY, path, rolesJson);
+        // 假设这是你的角色列表
+        List<String> roles = Arrays.asList("admin", "user", "guest");
+        // 将角色列表转换为JSON数组格式的字符串
+        String rolesJson = JSON.toJSONString(roles);
+        // 存储到Redis
+        redisUtil.hset(AuthConstant.ROLES_REDIS_KEY, path, rolesJson);
         // 从redis中获取当前路径可访问的角色列表
         Object obj = redisUtil.hget(AuthConstant.ROLES_REDIS_KEY, path);
+        if (obj == null) {
+            log.info("当前路径未配置角色限制，允许访问");
+            // 需要继续Authentication
+            return Mono.just(new AuthorizationDecision(true));
+        }
         List<String> needAuthorityList = JSONArray.parseArray(obj.toString(), String.class);
 //        needAuthorityList = needAuthorityList.stream().map(role -> AuthConstant.ROLE_PRE + role).toList();
         log.info("当前路径需要的角色列表：{}", needAuthorityList);
@@ -59,7 +64,7 @@ public class MyAuthorizationManager implements ReactiveAuthorizationManager<Auth
                 .flatMapIterable(auth -> {
                     log.info("当前用户的角色列表：{}", auth.getAuthorities());
                     return auth.getAuthorities();
-                } )
+                })
                 .map(GrantedAuthority::getAuthority)
                 .any(needAuthorityList::contains)
                 .map(AuthorizationDecision::new)

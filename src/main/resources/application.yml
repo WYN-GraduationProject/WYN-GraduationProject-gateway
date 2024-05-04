@@ -1,6 +1,6 @@
 logging:
   level:
-    org.springframework.security: DEBUG
+    org.springframework.cloud.gateway: DEBUG
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
@@ -12,17 +12,6 @@ spring:
     username: ${MYSQL_USER}
     password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
-  web:
-    verify:
-      mail-limit: 60
-    flow:
-      period: 3
-      limit: 50
-      block: 30
-    cors:
-      origin: '*'
-      credentials: false
-      methods: '*'
   rabbitmq:
     host: ${RABBITMQ_HOST}
     port: ${RABBITMQ_PORT}
@@ -38,7 +27,11 @@ spring:
         locator:
           enabled: true
       routes:
-        - id : auth-service
+        - id: video_service
+          uri: lb://video-service
+          predicates:
+            - Path=/api/video/**, /api/post/**
+        - id: auth-service
           uri: lb://auth-service
           predicates:
             - Path=/api/user/**

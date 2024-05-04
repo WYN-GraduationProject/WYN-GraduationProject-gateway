@@ -26,12 +26,13 @@ public class RequestLogFilter implements WebFilter {
 
     /**
      * 判定当前请求url是否不需要日志打印
+     *
      * @param url 路径
      * @return 是否忽略
      */
-    private boolean isIgnoreUrl(String url){
+    private boolean isIgnoreUrl(String url) {
         for (String ignore : ignores) {
-            if(url.startsWith(ignore)) return true;
+            if (url.startsWith(ignore)) return true;
         }
         return false;
     }
@@ -59,7 +60,7 @@ public class RequestLogFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
-        if(this.isIgnoreUrl(request.getPath().value())) {
+        if (this.isIgnoreUrl(request.getPath().value())) {
             return chain.filter(exchange);
         } else {
             long startTime = System.currentTimeMillis();

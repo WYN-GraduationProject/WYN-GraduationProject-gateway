@@ -40,7 +40,7 @@ public class MyLogoutSuccessHandler implements ServerLogoutSuccessHandler {
         ServerHttpResponse response = exchange.getExchange().getResponse();
         response.getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         if (Objects.equals(authentication.getPrincipal().toString(), "anonymous")) {
-            result = RestBean.failure(401,"未认证");
+            result = RestBean.failure(401, "未认证");
         } else {
             // 转换为自定义security令牌
             MyAuthenticationToken myAuthenticationToken = (MyAuthenticationToken) authentication;

@@ -4,7 +4,6 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.constantineqaq.gateway.entity.constant.AuthRole;
 import jakarta.annotation.Resource;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Component;
 import utils.JwtUtil;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 

@@ -2,34 +2,23 @@ package com.constantineqaq.gateway.security;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.constantineqaq.gateway.entity.constant.AuthConstant;
-import com.constantineqaq.gateway.entity.constant.AuthRole;
 import com.constantineqaq.gateway.entity.dto.Account;
 import com.constantineqaq.gateway.service.AccountService;
 import com.constantineqaq.gateway.utils.UserJwtUtil;
-import constant.Const;
 import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import utils.JwtUtil;
 import utils.RedisUtil;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 从 token 中提取用户凭证
